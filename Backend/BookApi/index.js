@@ -60,8 +60,8 @@ const multerUpload = multer({ storage: multerStorage });
 //mega cloud longing
 
 const storage = new mega.Storage({
-  email: "autofilter00@gmail.com",
-  password: "12qwAS!@",
+  email: process.env.MEGA_CLOUD_EMIAL,
+  password: process.env.MEGA_CLOUD_PASSWORD,
 });
 
 exports.storage = storage;
