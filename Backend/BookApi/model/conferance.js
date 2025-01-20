@@ -19,12 +19,10 @@ const ConferenceSubmissionSchema = new Schema(
     },
     conferenceStartDate: {
       type: String,
-      required: true,
       trim: true,
     },
     conferenceEndDate: {
       type: String,
-      required: true,
       trim: true,
     },
     authors: {
@@ -50,7 +48,7 @@ const ConferenceSubmissionSchema = new Schema(
       required: true,
     },
     indexed: {
-      type: [String], // Array of keywords
+      type: [String], // Array of indexes
       required: true,
     },
     track: {
@@ -58,29 +56,41 @@ const ConferenceSubmissionSchema = new Schema(
       required: true,
       trim: true,
     },
-    conferenceBanner: {
-      type: String,
-      required: true,
-    },
     paperFile: {
-      type: String, // Path to the uploaded paper PDF
-      required: true,
+      originalName: String,
+      megaName: String,
+      filePath: String,
+      fileSize: Number,
     },
     programScheduleFile: {
-      type: String, // Path to the uploaded program schedule PDF
-      required: true,
+      originalName: String,
+      megaName: String,
+      filePath: String,
+      fileSize: Number,
     },
     presentationScheduleFile: {
-      type: String, // Path to the uploaded presentation schedule PDF
-      required: true,
+      originalName: String,
+      megaName: String,
+      filePath: String,
+      fileSize: Number,
     },
     presentationGuidelinesFile: {
-      type: String, // Path to the uploaded presentation guidelines PDF
-      required: true,
+      originalName: String,
+      megaName: String,
+      filePath: String,
+      fileSize: Number,
     },
     pptFormatFile: {
-      type: String, // Path to the uploaded PPT format file
-      required: true,
+      originalName: String,
+      megaName: String,
+      filePath: String,
+      fileSize: Number,
+    },
+    conferenceBanner: {
+      originalName: String,
+      megaName: String,
+      filePath: String,
+      fileSize: Number,
     },
     venueDetails: {
       type: String, // Description of the venue or online platform

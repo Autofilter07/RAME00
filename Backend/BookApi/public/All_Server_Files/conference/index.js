@@ -66,7 +66,7 @@ exports.conferencePage = async (req, res) => {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Research Association of Masters of Engineering (RAME)</title>
+    <title>RAME Association - Conferances</title>
     <link rel="stylesheet" href="/All_Server_Files/conference/style.css" />
   </head>
   <body>
@@ -232,7 +232,7 @@ exports.upcomingConferencesPage = async (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAME Conferences</title>
+  <title>RAME Association - Upcoming Conferances</title>
   <link rel="stylesheet" href="/All_Server_Files/conference/upcomingConferenceStyle.css">
   
 </head>

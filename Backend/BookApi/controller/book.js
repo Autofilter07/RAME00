@@ -1,6 +1,8 @@
 const model = require("../model/book");
 const Book = model.book;
 
+// const mega = require("../index/");
+
 exports.create = (req, res) => {
   console.log(req.body);
   try {
@@ -44,11 +46,35 @@ exports.updateBookData = async (req, res) => {
 
     // Check if files were uploaded
     if (req.files && req.files.length > 0) {
-      const uploadedFiles = req.files.map((file) => ({
-        originalName: file.originalname,
-        filePath: file.path,
-        fileSize: file.size,
-      }));
+      const uploadedFiles = await Promise.all(
+        files.map((file) => {
+          const uniqueName = `${Date.now()}-${file.originalname}`;
+          return new Promise((resolve, reject) => {
+            const uploadStream = storage.upload(
+              { name: uniqueName },
+              file.buffer
+            );
+
+            uploadStream.once("complete", async (uploadedFile) => {
+              try {
+                const fileInfo = {
+                  originalName: file.originalname,
+                  megaName: uploadedFile.name,
+                  filePath: await uploadedFile.link(),
+                  fileSize: uploadedFile.size,
+                };
+                resolve(fileInfo);
+              } catch (err) {
+                reject(err);
+              }
+            });
+
+            uploadStream.once("error", (err) => {
+              reject(err);
+            });
+          });
+        })
+      );
 
       // Add the files to the book data
       req.body.files = uploadedFiles;
@@ -122,17 +148,55 @@ exports.deleteAll = async (req, res) => {
 //
 //
 
+let storage; // Declare storage globally for this file
+
+exports.setStorage = (megaStorage) => {
+  storage = megaStorage; // Assign the storage object passed from index.js
+};
+
 exports.addBookWithFiles = async (req, res) => {
   try {
     console.log("Form data:", req.body);
     console.log("Uploaded files:", req.files);
 
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded." });
+    }
+
     // Map uploaded files to the desired format
-    const uploadedFiles = req.files.map((file) => ({
-      originalName: file.originalname,
-      filePath: file.path,
-      fileSize: file.size,
-    }));
+    const uploadedFiles = await Promise.all(
+      files.map((file) => {
+        const uniqueName = `${Date.now()}-${file.originalname}`;
+        return new Promise((resolve, reject) => {
+          const uploadStream = storage.upload(
+            { name: uniqueName },
+            file.buffer
+          );
+
+          uploadStream.once("complete", async (uploadedFile) => {
+            try {
+              const fileInfo = {
+                originalName: file.originalname,
+                megaName: uploadedFile.name,
+                filePath: await uploadedFile.link(),
+                fileSize: uploadedFile.size,
+              };
+              resolve(fileInfo);
+            } catch (err) {
+              reject(err);
+            }
+          });
+
+          uploadStream.once("error", (err) => {
+            reject(err);
+          });
+        });
+      })
+    );
+
+    console.log("Uploaded Files Info:", uploadedFiles);
 
     // Combine form data with file information
     const bookData = {
@@ -147,10 +211,9 @@ exports.addBookWithFiles = async (req, res) => {
     res.json({
       message: "Book and files uploaded successfully!",
       book: bookData,
-      files: uploadedFiles,
     });
   } catch (error) {
     console.error("Error saving book:", error);
-    res.status(500).json({ message: "Failed to upload book data." });
+    res.status(500).json({ message: "Failed to upload book data.", error });
   }
 };

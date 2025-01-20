@@ -26,7 +26,7 @@ exports.readBooks = async (req, res) => {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="No books found - RAME Books" />
-    <title>Books Not Found</title>
+    <title>RAME Association - Book not found</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -101,8 +101,10 @@ exports.readBooks = async (req, res) => {
 
     // Generate HTML for books dynamically
     const booksHtml = bookData
+
       .map(
-        (book) => `
+        (book) =>
+          `
     <article class="book">
       <a style="
     color: black;
@@ -110,9 +112,9 @@ exports.readBooks = async (req, res) => {
 "  href="/book/${book._id}">
         <img
           src="${
-            "../uploads" +
-            (book.files[0]?.filePath.split("/uploads")[1] ||
-              "../images/DefaultBookCover.png")
+            "/mega-cloud/" + book.files[0]?.megaName ||
+            "../images/DefaultBookCover.png"
+            // || "../images/DefaultBookCover.png"
           }"
           alt="${book.name} Cover"
           width="100%"
@@ -150,7 +152,7 @@ exports.readBooks = async (req, res) => {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content="RAME Books - International Publisher of Technical Books in Science and Technology." />
-        <title>RAME Books</title>
+        <title>RAME Assciation - Books</title>
         <link rel="stylesheet" href="/All_Server_Files/Books/RAME_5_book_style.css">
         <style>
           body {
@@ -329,6 +331,7 @@ exports.readBooks = async (req, res) => {
             <h1>RAME Books</h1>
             <nav>
               <ul>
+                <li><a href="/">Home</a></li>
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="/5-books">Recent Books</a></li>

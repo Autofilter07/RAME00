@@ -4,7 +4,7 @@ const Book = model.book;
 exports.read5book = async (req, res) => {
   try {
     // Fetch 5 books from the database
-    const bookData = await Book.find().limit(5).sort({ date:-1 });
+    const bookData = await Book.find().limit(5).sort({ date: -1 });
     var msg = "",
       viewMore = "",
       viewAllBooksPath = "";
@@ -41,7 +41,7 @@ exports.read5book = async (req, res) => {
 "  href="/book/${book._id}">
           <img
             src="${
-              "../uploads" + book.files[0]?.filePath.split("/uploads")[1] ||
+              "/mega-cloud/" + book.files[0]?.megaName ||
               "../images/DefaultBookCover.png"
             }"
             alt="${book.name} Cover"
@@ -68,7 +68,7 @@ exports.read5book = async (req, res) => {
           name="description"
           content="RAME Books - International Publisher of Technical Books in Science and Technology."
         />
-        <title>RAME Books</title>
+        <title>RAME Association - Books</title>
        <link rel="stylesheet" href="/All_Server_Files/Books/RAME_5_book_style.css">
 
       </head>
@@ -78,6 +78,7 @@ exports.read5book = async (req, res) => {
             <h1>RAME Books</h1>
             <nav>
               <ul class="nav-links">
+                <li><a href="/">Home</a></li>
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#recent-books">Recent Books</a></li>

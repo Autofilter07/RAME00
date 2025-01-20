@@ -1,6 +1,6 @@
 var result1;
 // const api = "https://test-purpose-yesu.onrender.com";
-const api = "https://rame24.onrender.com";
+const api = "https://super-duper-robot-6jxv9g6w9xrh59p5-8080.app.github.dev";
 const uploadBtn = document.getElementById("btn");
 const uploadForm = document.getElementById("uploadForm");
 
@@ -46,9 +46,7 @@ function displayBooks(books) {
     const bookItem = document.createElement("div");
     bookItem.classList.add("book-item");
     bookItem.innerHTML = `
-     <p><strong>Book Cover:</strong></br></br><img src="${api}/uploads${
-      book?.files[0]?.filePath?.split("/uploads")[1]
-    }" alt="Book Cover" /></p>
+     <p><strong>Book Cover:</strong></br></br><img src="${api}/mega-cloud/${book?.files[0]?.megaName}" alt="Book Cover" /></p>
       <p><strong>Name:</strong> ${book?.name}</p>
       <p><strong>ISBN:</strong> ${book?.isbn}</p>
       <p><strong>Genre:</strong> ${book?.genre}</p>
@@ -57,9 +55,7 @@ function displayBooks(books) {
       <p><strong>eBook Price:</strong> ${book?.ebookPrice}</p>
       <p><strong>Description:</strong> ${book?.description}</p>
       <p><strong>Abstraction:</strong> ${book?.Abstraction}</p>
-      <p><strong>eBook:</strong> <a href="${api}/uploads${
-      book?.files[1]?.filePath?.split("/uploads")[1]
-    }" target="_blank" class="file-link">Download eBook</a></p>
+      <p><strong>eBook:</strong> <a href="${api}/mega-cloud/${book?.files[1]?.megaName}" target="_blank" class="file-link">Download eBook</a></p>
 
 `;
     //creating update button to update perticular book
@@ -104,12 +100,10 @@ function displayBooks(books) {
 
       try {
         // Make the PATCH request to update the book data
-        const response = await fetch( api+"/update",
-          {
-            method: "PATCH", // Use PATCH method to update
-            body: formData, // Send the form data
-          }
-        );
+        const response = await fetch(api + "/update", {
+          method: "PATCH", // Use PATCH method to update
+          body: formData, // Send the form data
+        });
 
         if (!response.ok) {
           // Handle the case where the response is not successful (status codes >= 400)
@@ -143,6 +137,10 @@ function displayBooks(books) {
     deleteBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       deleteBtn.disabled = true; //prevent btn action to stop repeted clicks
+      const confirmDelete = confirm(
+        "Are you sure you want to delete this item?"
+      );
+      if (!confirmDelete) return;
       deleteBtn.innerText = "deleting...";
       // console.log(book?._id);
       // console.log(api);
@@ -199,8 +197,8 @@ async function uploadBookDetailes(event) {
     // console.error("Error uploading files:", error);
     alert("Failed to upload files. Please try again.");
   } finally {
-    location.reload(); // use to reload window when data is added
+    // location.reload(); // use to reload window when data is added
     uploadBtn.innerText = "upload";
-    uploadForm.reset();
+    // uploadForm.reset();
   }
 }

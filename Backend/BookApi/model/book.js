@@ -16,6 +16,7 @@ const Bookschema = new Schema({
   files: [
     {
       originalName: { type: String, required: true },
+      megaName: { type: String, required: true },
       filePath: { type: String, required: true },
       fileSize: { type: Number, required: true },
     },

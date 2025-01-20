@@ -1,66 +1,66 @@
 const ConferenceSubmissionModel = require("../model/conferance");
 const ConferenceSubmission = ConferenceSubmissionModel.ConferenceSubmission;
 
+// Mega Cloud Storage
+let storage;
+exports.setConferenceStorage = (megaStorage) => {
+  storage = megaStorage; // Assign the storage object dynamically
+};
+
 exports.addConferenceSubmission = async (req, res) => {
   try {
-    // Log the form data for debugging purposes
-    // console.log("Form data:", req.body);
-    // console.log("Form data:", req.files);
-
     // Check if files are uploaded
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ message: "No files uploaded" });
     }
 
-    // Access each file correctly from req.files
-    const paperFile = req.files["paperFile"]
-      ? req.files["paperFile"][0].path
-      : null;
-    const programScheduleFile = req.files["programScheduleFile"]
-      ? req.files["programScheduleFile"][0].path
-      : null;
-    const presentationScheduleFile = req.files["presentationScheduleFile"]
-      ? req.files["presentationScheduleFile"][0].path
-      : null;
-    const presentationGuidelinesFile = req.files["presentationGuidelinesFile"]
-      ? req.files["presentationGuidelinesFile"][0].path
-      : null;
-    const pptFormatFile = req.files["pptFormatFile"]
-      ? req.files["pptFormatFile"][0].path
-      : null;
-    const conferenceBanner = req.files["conferenceBanner"]
-      ? req.files["conferenceBanner"][0].path
-      : null;
+    // Upload files to Mega Cloud
+    const uploadFileToMega = async (file) => {
+      return new Promise((resolve, reject) => {
+        const uniqueName = `${Date.now()}-${file.originalname}`;
+        const uploadStream = storage.upload({ name: uniqueName }, file.buffer);
 
-    // Ensure all required files are present
-    if (
-      !paperFile ||
-      !programScheduleFile ||
-      !presentationScheduleFile ||
-      !presentationGuidelinesFile ||
-      !pptFormatFile ||
-      !conferenceBanner
-    ) {
-      return res
-        .status(400)
-        .json({ message: "One or more required files are missing" });
-    }
+        uploadStream.once("complete", async (uploadedFile) => {
+          try {
+            const fileInfo = {
+              originalName: file.originalname,
+              megaName: uploadedFile.name,
+              filePath: await uploadedFile.link(),
+              fileSize: uploadedFile.size,
+            };
+            resolve(fileInfo);
+          } catch (err) {
+            reject(err);
+          }
+        });
 
-    // Combine form data with the uploaded file paths
-    const conferenceData = {
-      ...req.body,
-      paperFile,
-      programScheduleFile,
-      presentationScheduleFile,
-      presentationGuidelinesFile,
-      pptFormatFile,
-      conferenceBanner,
+        uploadStream.once("error", (err) => {
+          reject(err);
+        });
+      });
     };
 
-    console.log("Conference data:", conferenceData);
+    // Handle file uploads
+    const uploadedFiles = {};
+    for (const key of Object.keys(req.files)) {
+      const file = req.files[key][0];
+      uploadedFiles[key] = await uploadFileToMega(file);
+    }
+
+    // Combine form data with uploaded file information
+    const conferenceData = {
+      ...req.body,
+      paperFile: uploadedFiles["paperFile"],
+      programScheduleFile: uploadedFiles["programScheduleFile"],
+      presentationScheduleFile: uploadedFiles["presentationScheduleFile"],
+      presentationGuidelinesFile: uploadedFiles["presentationGuidelinesFile"],
+      pptFormatFile: uploadedFiles["pptFormatFile"],
+      conferenceBanner: uploadedFiles["conferenceBanner"],
+    };
 
     // Create a new conference submission document
     const newSubmission = new ConferenceSubmission(conferenceData);
+    console.log(newSubmission);
 
     // Save the conference submission to the database
     await newSubmission.save();
@@ -70,7 +70,6 @@ exports.addConferenceSubmission = async (req, res) => {
       conference: newSubmission,
     });
   } catch (error) {
-    // Log the error and return a failure message
     console.error("Error adding conference submission:", error);
     res.status(500).json({ message: "Failed to add conference submission" });
   }
@@ -141,6 +140,8 @@ exports.updateConferenceSubmission = async (req, res) => {
   try {
     const id = req.params.id;
 
+    console.log(req.body);
+
     // Fetch the existing submission by ID
     const existingSubmission = await ConferenceSubmission.findById(id);
     if (!existingSubmission) {
@@ -152,40 +153,81 @@ exports.updateConferenceSubmission = async (req, res) => {
     // Handle uploaded files if any
     const updatedData = { ...req.body };
 
+    // Update files on MEGA if they are provided in the request
     if (req.files) {
+      // Function to upload files to MEGA and return the file info
+      const uploadFileToMega = async (file) => {
+        return new Promise((resolve, reject) => {
+          const uniqueName = `${Date.now()}-${file.originalname}`;
+          const uploadStream = storage.upload(
+            { name: uniqueName },
+            file.buffer
+          );
+
+          uploadStream.once("complete", async (uploadedFile) => {
+            try {
+              const fileInfo = {
+                originalName: file.originalname,
+                megaName: uploadedFile.name,
+                filePath: await uploadedFile.link(),
+                fileSize: uploadedFile.size,
+              };
+              resolve(fileInfo);
+            } catch (err) {
+              reject(err);
+            }
+          });
+
+          uploadStream.once("error", (err) => {
+            reject(err);
+          });
+        });
+      };
+
+      // Handle the upload for each file
       if (req.files["paperFile"]) {
-        updatedData.paperFile = req.files["paperFile"][0].path;
+        updatedData.paperFile = await uploadFileToMega(
+          req.files["paperFile"][0]
+        );
       }
       if (req.files["programScheduleFile"]) {
-        updatedData.programScheduleFile =
-          req.files["programScheduleFile"][0].path;
+        updatedData.programScheduleFile = await uploadFileToMega(
+          req.files["programScheduleFile"][0]
+        );
       }
       if (req.files["presentationScheduleFile"]) {
-        updatedData.presentationScheduleFile =
-          req.files["presentationScheduleFile"][0].path;
+        updatedData.presentationScheduleFile = await uploadFileToMega(
+          req.files["presentationScheduleFile"][0]
+        );
       }
       if (req.files["presentationGuidelinesFile"]) {
-        updatedData.presentationGuidelinesFile =
-          req.files["presentationGuidelinesFile"][0].path;
+        updatedData.presentationGuidelinesFile = await uploadFileToMega(
+          req.files["presentationGuidelinesFile"][0]
+        );
       }
       if (req.files["pptFormatFile"]) {
-        updatedData.pptFormatFile = req.files["pptFormatFile"][0].path;
+        updatedData.pptFormatFile = await uploadFileToMega(
+          req.files["pptFormatFile"][0]
+        );
       }
       if (req.files["conferenceBanner"]) {
-        updatedData.conferenceBanner = req.files["conferenceBanner"][0].path;
+        updatedData.conferenceBanner = await uploadFileToMega(
+          req.files["conferenceBanner"][0]
+        );
       }
     }
 
-    // Update the submission with new data
+    // Update the existing submission with the new data
     Object.assign(existingSubmission, updatedData);
 
-    // Save changes to the database
+    // Save the updated submission in the database
     await existingSubmission.save();
 
     res.status(200).json({
       message: "Conference submission updated successfully!",
       conference: existingSubmission,
     });
+    console.log(existingSubmission);
   } catch (error) {
     console.error("Error updating conference submission:", error);
     res.status(500).json({ message: "Failed to update conference submission" });
@@ -206,7 +248,6 @@ exports.deleteConferenceSubmission = async (req, res) => {
         .status(404)
         .json({ message: "Conference submission not found" });
     }
-
     res.status(200).json({
       message: "Conference submission deleted successfully!",
       conference: deletedSubmission,
@@ -230,6 +271,24 @@ exports.deleteAll = async (req, res) => {
   } catch (error) {
     // Handle any errors
     console.error(error);
-    res.status(500).json({ message: "An error occurred while deleting submissions.", error });
+    res.status(500).json({
+      message: "An error occurred while deleting submissions.",
+      error,
+    });
   }
 };
+
+async function deleteFromMega(filePath) {
+  try {
+    const fileHandle = await megaStorage.file(filePath);
+    await new Promise((resolve, reject) => {
+      fileHandle.delete((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  } catch (error) {
+    console.error("Error deleting file from MEGA:", error);
+    throw new Error("File deletion from MEGA failed");
+  }
+}

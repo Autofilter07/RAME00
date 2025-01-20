@@ -5,12 +5,12 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 require("dotenv").config();
-const mega = require("megajs")
+const mega = require("megajs");
 // Controllers
 const bookController = require("./controller/book");
 const confranceController = require("./controller/confrance");
 const studenMembershipController = require("./controller/studentMembership");
-
+const megaControllers = require("./controller/megaCloud");
 // Models
 const model = require("./model/book");
 const Book = model.book;
@@ -55,7 +55,16 @@ mongoDbConnection();
 
 // Multer configuration
 const multerStorage = multer.memoryStorage();
-const upload = multer({ storage: multerStorage });
+const multerUpload = multer({ storage: multerStorage });
+
+//mega cloud longing
+
+const storage = new mega.Storage({
+  email: "autofilter00@gmail.com",
+  password: "12qwAS!@",
+});
+
+exports.storage = storage;
 
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -78,30 +87,21 @@ app.get(
 );
 app.get("/conference/:id", singleConferencePage.singleConferencePage);
 app.get("/membership", studenMembership.StudentMembershipHtml);
-app.post("/add", upload.array("files", 2), bookController.addBookWithFiles);
-app.post("/student-membership", studenMembershipController.studentMembership);
 
-app.post(
-  "/add-conference",
-  upload.fields([
-    { name: "paperFile", maxCount: 1 },
-    { name: "programScheduleFile", maxCount: 1 },
-    { name: "presentationScheduleFile", maxCount: 1 },
-    { name: "presentationGuidelinesFile", maxCount: 1 },
-    { name: "pptFormatFile", maxCount: 1 },
-    { name: "conferenceBanner", maxCount: 1 },
-  ]),
-  confranceController.addConferenceSubmission
-);
+app.post("/student-membership", studenMembershipController.studentMembership);
 
 app.get("/conferences", conferencePage.upcomingConferencesPage);
 app.get("/all-conferences", conferencePage.conferencePage);
-app.patch("/update", upload.array("files", 2), bookController.updateBookData);
+app.patch(
+  "/update",
+  multerUpload.array("files", 2),
+  bookController.updateBookData
+);
 
 //update conferene by id
 app.patch(
   "/update-conference/:id",
-  upload.fields([
+  multerUpload.fields([
     { name: "paperFile", maxCount: 1 },
     { name: "programScheduleFile", maxCount: 1 },
     { name: "presentationScheduleFile", maxCount: 1 },
@@ -119,12 +119,44 @@ app.delete(
 );
 //Delete-Allitems
 app.get("/delete-all-conferences", confranceController.deleteAll);
-
 // Routes for Postman
 app.get("/bookss", bookController.read);
 app.post("/book", bookController.create);
 app.delete("/:id", bookController.delete);
 app.get("/delete-all-books", bookController.deleteAll);
+
+//to get the mega-cloud files
+
+storage.once("ready", () => {
+  console.log("mega login");
+
+  //fetchs file
+  megaControllers.setMegaStorage(storage);
+  app.get("/mega-cloud/:fileName", megaControllers.megaCloudFiles);
+
+  //add conferences
+  confranceController.setConferenceStorage(storage);
+  app.post(
+    "/add-conference",
+    multerUpload.fields([
+      { name: "paperFile", maxCount: 1 },
+      { name: "programScheduleFile", maxCount: 1 },
+      { name: "presentationScheduleFile", maxCount: 1 },
+      { name: "presentationGuidelinesFile", maxCount: 1 },
+      { name: "pptFormatFile", maxCount: 1 },
+      { name: "conferenceBanner", maxCount: 1 },
+    ]),
+    confranceController.addConferenceSubmission
+  );
+
+  //add books
+  bookController.setStorage(storage);
+  app.post(
+    "/add",
+    multerUpload.array("files", 2),
+    bookController.addBookWithFiles
+  );
+});
 
 // Start server
 app.listen(PORT, () => {

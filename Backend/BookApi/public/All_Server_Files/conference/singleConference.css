@@ -54,19 +54,21 @@ main {
 }
 
 .conference-banner-img {
-  width: 90%; /* Adjust width for better responsiveness */
-  height: 45vh;
-  margin: 20px auto; /* Center the image with margin */
-  height: auto; /* Allow height to adjust automatically */
-  overflow: hidden; /* Hide any overflow content */
-  border-radius: 10px; /* Add rounded corners for a modern look */
+  width: 100%; /* Adjust width for better responsiveness */
+  /* height: 45vh; */
+  /* margin: 20px auto; Center the image with margin */
+  /* height: auto; Allow height to adjust automatically */
+  /* overflow: hidden; Hide any overflow content */
+  /* border-radius: 10px; Add rounded corners for a modern look */
 }
 
 .conference-banner-img img {
-  width: 100%; /* Make the image take up the full width of the container */
-  height: 50%;
-  height: auto; /* Maintain aspect ratio */
+  width: 90%; /* Make the image take up the full width of the container */
+  height: 400px;
+  /* height: auto; Maintain aspect ratio */
   display: block; /* Eliminate extra spacing below images in some browsers */
+  margin: auto;
+  border-radius: 20px;
 }
 
 .organizer-heading {
@@ -244,8 +246,8 @@ footer {
     flex-direction: column;
   }
 
-  .conference-banner-img {
-    height: 40vh;
+  .conference-banner-img img {
+    height: 200px;
   }
 
   .conference-details {

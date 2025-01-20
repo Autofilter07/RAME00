@@ -5,10 +5,9 @@ exports.singleConferencePage = async (req, res) => {
   try {
     const id = req.params.id;
     const conference = await conferanceData.findById(id);
-    const imagePath =
-      "../uploads" +
-      (conference?.conferenceBanner?.split("/uploads")[1] ||
-        "../images/default-book-cover.jpg");
+    console.log(conference);
+
+    const imagePath = "/mega-cloud/" + conference?.conferenceBanner?.megaName;
     console.log(imagePath);
 
     const singleConferencePageHtml = `
@@ -17,7 +16,9 @@ exports.singleConferencePage = async (req, res) => {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${conference?.shortcutTitle || "Title Not found!"}</title>
+    <title>RAME Association - ${
+      conference?.shortcutTitle || "RAME Conferance"
+    }</title>
 <link rel="stylesheet" href="/All_Server_Files/conference/singleConference.css">
   </head>
   <body>
@@ -107,10 +108,9 @@ exports.singleConferencePage = async (req, res) => {
           <p>Stay updated with the latest presentation schedule.</p>
           <a
             href=${
-              "../uploads" +
-              conference?.presentationScheduleFile?.split("/uploads")[1]
+              "/mega-cloud/" + conference?.presentationScheduleFile?.megaName
             }
-          >
+         target="_blank" >
             Download Schedule
           </a>
           
@@ -120,10 +120,7 @@ exports.singleConferencePage = async (req, res) => {
           <h4>Program Schedule</h4>
           <p>Explore the complete conference program in detail.</p>
           <a
-            href=${
-              "../uploads" +
-              conference?.programScheduleFile?.split("/uploads")[1]
-            }
+            href=${"/mega-cloud/" + conference?.programScheduleFile?.megaName}
             target="_blank"
           >
             Download Program
@@ -136,10 +133,9 @@ exports.singleConferencePage = async (req, res) => {
           <p>Follow the guidelines to ensure effective presentations.</p>
           <a
             href=${
-              "../uploads" +
-              conference?.presentationGuidelinesFile?.split("/uploads")[1]
+              "/mega-cloud/" + conference?.presentationGuidelinesFile?.megaName
             }
-          >
+         target="_blank" >
             Download Guidelines
           </a>
         </div>
@@ -148,10 +144,8 @@ exports.singleConferencePage = async (req, res) => {
           <h4>PPT Format</h4>
           <p>Download the official PPT format for your presentation.</p>
           <a
-            href=${
-              "../uploads" + conference?.pptFormatFile?.split("/uploads")[1]
-            }
-          >
+            href=${"/mega-cloud/" + conference?.pptFormatFile?.megaName}
+         target="_blank" >
             Download Format
           </a>
           <div class="details">Format: PowerPoint</div>

@@ -9,11 +9,14 @@ exports.renderBookPage = async (req, res) => {
     if (!bookData) {
       return res.status(404).send("Book not found");
     }
+    // "/mega-cloud/" + book.files[0]?.megaName ||
+    // "../images/DefaultBookCover.png"
 
-    const imagePath = "../uploads" + (bookData.files[0]?.filePath.split("/uploads")[1] || "default-book-cover.jpg"); 
-       const eBookPath = "../uploads" + (bookData.files[1]?.filePath.split("/uploads")[1] || "default-book-cover.jpg");
-console.log(eBookPath);
-
+    const imagePath =
+      "/mega-cloud/" +
+      (bookData.files[0]?.megaName || "../upload/default-book-cover.jpg");
+    const eBookPath = "/mega-cloud/" + bookData.files[1]?.megaName;
+    console.log(eBookPath);
 
     // Generate HTML dynamically for the selected book
     const html = `
@@ -24,9 +27,11 @@ console.log(eBookPath);
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
           name="description"
-          content="${bookData.name || "Book Details"} - Published by RAME Publishers"
+          content="${
+            bookData.name || "Book Details"
+          } - Published by RAME Publishers"
         />
-        <title>${bookData.name || "Book Details"} | RAME Publishers</title>
+        <title>RAME Association - ${bookData.name || "Book"} </title>
         <style>
           /* General Styles */
           body {
@@ -185,19 +190,36 @@ console.log(eBookPath);
           </div>
 
           <div class="book-info">
-            <p><strong>ISBN:</strong> ${bookData.isbn || "ISBN not available"}</p>
-            <p><strong>Published Date:</strong> ${bookData.year || "Date not available"}</p>
-            <p><strong>Abstract:</strong> ${bookData.Abstraction|| "Abstract coming soon."}</p>
-            <p><strong>Description:</strong> ${bookData.description || "Description coming soon."}</p>
-            <p><strong>Genre:</strong> ${bookData.genre || "Genre not available"}</p>
+            <p><strong>ISBN:</strong> ${
+              bookData.isbn || "ISBN not available"
+            }</p>
+            <p><strong>Published Date:</strong> ${
+              bookData.year || "Date not available"
+            }</p>
+            <p><strong>Abstract:</strong> ${
+              bookData.Abstraction || "Abstract coming soon."
+            }</p>
+            <p><strong>Description:</strong> ${
+              bookData.description || "Description coming soon."
+            }</p>
+            <p><strong>Genre:</strong> ${
+              bookData.genre || "Genre not available"
+            }</p>
             <hr />
            
             <h3>Editor's Information</h3>
-            <p><strong>Editor:</strong> ${bookData.editor || "Dr. Manoj A. Kumbhalkar"}</br>
-            Email:<a href="mailto:${bookData.editorEmail}">${bookData.editorEmail}</a></p>
+            <p><strong>Editor:</strong> ${
+              bookData.editor || "Dr. Manoj A. Kumbhalkar"
+            }</br>
+            Email:<a href="mailto:${bookData.editorEmail}">${
+      bookData.editorEmail
+    }</a></p>
 
             <h3>Co-Editors Information</h3>
-            <p>${bookData.coEditors || "Dr. Radheshyam H. Gajghat, Dr. Kishor S. Rambhad"}<br />
+            <p>${
+              bookData.coEditors ||
+              "Dr. Radheshyam H. Gajghat, Dr. Kishor S. Rambhad"
+            }<br />
             Members, Research Association of Masters of Engineering, India.</p>
 <br/><br/><hr/>
             <p><strong>Rights and Permissions:</strong><br />
@@ -205,14 +227,22 @@ console.log(eBookPath);
             </p>
 
             <h3>Pricing</h3>
-            <p><strong>eBook (PDF):</strong> ₹${bookData.ebookPrice || 350}<br />
-            <strong>Print Book:</strong> ₹${bookData.printPrice || 850} (Free Shipping)</p>
+            <p><strong>eBook (PDF):</strong> ₹${
+              bookData.ebookPrice || 350
+            }<br />
+            <strong>Print Book:</strong> ₹${
+              bookData.printPrice || 850
+            } (Free Shipping)</p>
           </div>
 
           <!-- Purchase Buttons -->
           <div class="purchase-buttons">
-            <a href="/purchase/${bookData._id}" class="btn">Purchase Book</a>
-            <a href="/${eBookPath}" class="btn">Download-ebook</a>
+            <a href="/purchase/${
+              bookData._id
+            }" target = "_blank"  class="btn">Purchase Book</a>
+
+
+            <a href="${eBookPath}"  target = "_blank" class="btn">Download-ebook</a>
           </div
         </main>
 
